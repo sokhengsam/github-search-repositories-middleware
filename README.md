@@ -15,9 +15,9 @@ The middle ware provides services which can search github repositories with diff
   
 # Apis to search respositories
 
-/api/repositories/v1
+/api/repositories/v1/search
 
-Parameters
+Parameters:
 
 - query: name of repository - mandatory parameter
 
@@ -28,6 +28,14 @@ Parameters
 - sortBy: The sort field - optional parameter(stars, forks, or updated, Default: stars)
 
 - orderDirection: direction of sort - optional parameter( asc or desc, default: desc)
+
+Header:
+
+Content-Type: application/json or application/xml
+
+Example:
+
+$ curl -H “Content-Type:application/json” http://localhost:8080/api/repositories/v1/search?q=liferay-portal
 
 
 
