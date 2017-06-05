@@ -3,6 +3,12 @@
 The middle ware provides services which can search github repositories with different response fromat. Api can response as xml or json format based request header. Technologies were built middleware such as spring framework(spring boot web, spring cache
 ,spring rest template), java servlet 3, slf4j and maven build tool.
 
+# Enviroment Setup
+
+- Install maven 3+
+- Install jdk 8+
+- please make sure you setup correctly JAVA_HOME
+
 # How to build and run
 
 - Build project: 
