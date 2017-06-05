@@ -1,51 +1,53 @@
 package com.khalibre.assignment;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.khalibre.assignment.rest.RepositoryController;
-import com.khalibre.assignment.services.RestClientService;
+import com.khalibre.assignment.dto.Repository;
+import com.khalibre.assignment.dto.RepositoryResponseList;
 
 @RunWith(value = SpringRunner.class)
-@WebMvcTest(value = RepositoryController.class, secure = false)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class RepositoryControllerTest {
 
     private static final String SEARCH_KEYWORD = "github-search-repositories-middleware";
-    private static final String REPOSITORIES_SEARCH_API = "/api/repositories/v1/search";
+    private static final String REPOSITORIES_SEARCH_API = "/api/repositories/v1/search?query={q}";
     @Autowired
-    private MockMvc mockMvc;
-    @MockBean
-    private RestClientService restClientService;
+    private TestRestTemplate restTemplate;
 
     @Test
     public void testSearchRepositoriesAsJsonResponse() throws Exception {
-        RequestBuilder builder = MockMvcRequestBuilders.get(REPOSITORIES_SEARCH_API).contentType(MediaType.APPLICATION_JSON_VALUE)
-                .param("query", SEARCH_KEYWORD);
-        MvcResult mvcResult = mockMvc.perform(builder)//
-                .andDo(print())//
-                .andExpect(status().isOk())//
-                .andReturn();
-        Assert.assertEquals(200, mvcResult.getResponse().getStatus());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> headerEnitity = new HttpEntity<String>(headers);
+        ResponseEntity<RepositoryResponseList> responseEntity = restTemplate.exchange(REPOSITORIES_SEARCH_API, HttpMethod.GET,
+                headerEnitity, RepositoryResponseList.class, SEARCH_KEYWORD);
+        RepositoryResponseList repositoryResponseList = responseEntity.getBody();
+        Repository repository = repositoryResponseList.getItems().get(0);
+        Assert.assertEquals(1L, repositoryResponseList.getTotalCount().longValue());
+        Assert.assertEquals(SEARCH_KEYWORD, repository.getName());
     }
 
     @Test
     public void testSearchRepositoriesAsXmlResponse() throws Exception {
-        RequestBuilder builder = MockMvcRequestBuilders.get(REPOSITORIES_SEARCH_API).contentType(MediaType.APPLICATION_XML_VALUE)
-                .param("query", SEARCH_KEYWORD);
-        MvcResult mvcResult = mockMvc.perform(builder).andReturn();
-        Assert.assertEquals(200, mvcResult.getResponse().getStatus());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_XML);
+        HttpEntity<String> headerEnitity = new HttpEntity<String>(headers);
+        ResponseEntity<RepositoryResponseList> responseEntity = restTemplate.exchange(REPOSITORIES_SEARCH_API, HttpMethod.GET,
+                headerEnitity, RepositoryResponseList.class, SEARCH_KEYWORD);
+        RepositoryResponseList repositoryResponseList = responseEntity.getBody();
+        Repository repository = repositoryResponseList.getItems().get(0);
+        Assert.assertEquals(1L, repositoryResponseList.getTotalCount().longValue());
+        Assert.assertEquals(SEARCH_KEYWORD, repository.getName());
     }
 }
